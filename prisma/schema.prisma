@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  albums Album[]
+  photos Photo[]
+}
+
+model Album {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String?
+  coverImage  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdById String
+  createdBy   AdminUser @relation(fields: [createdById], references: [id])
+
+  photos Photo[]
+}
+
+model Photo {
+  id          String  @id @default(cuid())
+  title       String
+  description String?
+  imageUrl    String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  albumId String
+  album   Album @relation(fields: [albumId], references: [id])
+
+  uploadedById String
+  uploadedBy   AdminUser @relation(fields: [uploadedById], references: [id])
+}
+
+model SiteSetting {
+  id            String @id @default(cuid())
+  heroTitle     String
+  heroSubtitle  String?
+  heroImage     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+}
