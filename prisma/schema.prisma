@@ -63,7 +63,22 @@ model SiteSetting {
   heroSubtitle  String?
   heroImage     String?
 
+  // Logo settings
+  logoUrl       String?
+  useDefaultLogo Boolean @default(true)
+
+  // Contact / Profile information
+  profilePicUrl String?
+  contactEmail  String?
+  contactPhone  String?
+  instagramUrl  String?
+  vimeoUrl      String?
+  telegramUrl   String?
+  facebookUrl   String?
+  youtubeUrl    String?
+  location      String?
+  aboutText     String? @db.Text
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
 }

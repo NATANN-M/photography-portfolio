@@ -53,7 +53,7 @@ export default function AlbumDetailPage({ params }: { params: Promise<{ slug: st
             <header className="relative h-[70vh] flex flex-col justify-end p-10 md:p-20 overflow-hidden">
                 <div 
                     className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transition-transform duration-[2s] scale-105 opacity-40"
-                    style={{ backgroundImage: `url(${album.coverImage})` }}
+                    style={{ backgroundImage: `url("${album.coverImage}")` }}
                 />
                 <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/20 to-transparent" />
                 
@@ -69,20 +69,20 @@ export default function AlbumDetailPage({ params }: { params: Promise<{ slug: st
                 </div>
             </header>
 
-            {/* PHOTOS GRID - MASONRY STYLE */}
-            <section className="px-4 md:px-10 py-20">
-                <div className="columns-1 md:columns-2 lg:columns-3 gap-4 space-y-4">
+            {/* PHOTOS GRID */}
+            <section className="max-w-[1600px] mx-auto px-6 py-20">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {album.photos?.map((photo: any) => (
-                        <div key={photo.id} className="break-inside-avoid group relative cursor-pointer overflow-hidden rounded-sm">
+                        <div key={photo.id} className="group relative aspect-[4/5] overflow-hidden rounded-2xl bg-white/5 border border-white/5">
                             <img 
-                                src={photo.imageUrl} 
+                                src={encodeURI(photo.imageUrl)} 
                                 alt={photo.title}
-                                className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
+                                className="w-full h-full object-cover transition-transform duration-[1.5s] group-hover:scale-110"
                             />
                             {/* Overlay on hover */}
-                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
-                                <h4 className="text-xl font-bold tracking-tight italic">{photo.title}</h4>
-                                <p className="text-xs text-white/40 uppercase tracking-widest mt-2">© ZEKI Photography</p>
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-8">
+                                <h4 className="text-2xl font-bold tracking-tight">{photo.title}</h4>
+                                <p className="text-[10px] text-white/40 uppercase tracking-[0.3em] mt-2">© ZEKI Photography</p>
                             </div>
                         </div>
                     ))}

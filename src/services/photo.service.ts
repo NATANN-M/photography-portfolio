@@ -63,3 +63,11 @@ export async function updatePhoto(id: string, data: { title?: string, descriptio
     data,
   });
 }
+
+export async function deletePhotos(ids: string[]) {
+  return prisma.photo.deleteMany({
+    where: {
+      id: { in: ids },
+    },
+  });
+}

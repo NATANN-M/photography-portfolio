@@ -63,7 +63,7 @@ export default function ManagePhotosPage() {
             <div key={photo.id} className="group bg-[#111] rounded-2xl overflow-hidden border border-white/5 hover:border-white/20 transition-all">
               <div className="aspect-[4/3] relative overflow-hidden">
                 <img 
-                  src={photo.imageUrl} 
+                  src={encodeURI(photo.imageUrl)} 
                   alt={photo.title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />

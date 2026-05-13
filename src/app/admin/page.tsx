@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import Link from "next/link";
+import { LayoutDashboard, Images, FolderKanban, ArrowRight, Plus, Loader2, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -30,84 +32,115 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+        <Loader2 className="animate-spin text-white/20" size={40} />
       </div>
     );
   }
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { y: 20, opacity: 0 },
+    show: { y: 0, opacity: 1 }
+  };
+
   return (
-    <div className="space-y-10 animate-in fade-in duration-700">
+    <motion.div 
+        variants={container}
+        initial="hidden"
+        animate="show"
+        className="space-y-12 pb-20"
+    >
       {/* HEADER */}
-      <div>
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Dashboard Overview</h1>
-        <p className="text-white/50 mt-2">Manage your portfolio and track your content.</p>
-      </div>
+      <motion.div variants={item}>
+        <h1 className="text-4xl font-black tracking-tighter uppercase italic">Control Center</h1>
+        <p className="text-white/40 mt-1 font-medium">Monitoring your visual empire and creative assets.</p>
+      </motion.div>
 
       {/* STATS GRID */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <StatCard title="Total Albums" value={stats.albumsCount} icon="📁" />
-        <StatCard title="Total Photos" value={stats.photosCount} icon="🖼️" />
-        <div className="bg-[#111] p-6 rounded-2xl border border-white/10 flex flex-col justify-between">
-            <h3 className="text-white/60 text-xs font-bold uppercase tracking-widest">Quick Actions</h3>
-            <div className="flex gap-3 mt-4">
-                <Link href="/admin/photos/upload" className="flex-1 bg-white text-black text-center py-2.5 rounded-lg font-bold text-xs hover:bg-white/90 transition-colors flex items-center justify-center">
-                    Upload
+      <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <StatCard title="Total Collections" value={stats.albumsCount} icon={FolderKanban} color="blue" />
+        <StatCard title="Curated Assets" value={stats.photosCount} icon={Images} color="purple" />
+        <div className="bg-[#0a0a0a] p-8 rounded-[2rem] border border-white/5 flex flex-col justify-between shadow-2xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-3xl -mr-16 -mt-16 rounded-full group-hover:bg-white/10 transition-colors" />
+            <h3 className="text-white/30 text-[10px] font-black uppercase tracking-widest relative z-10">Quick Operations</h3>
+            <div className="flex flex-col gap-3 mt-6 relative z-10">
+                <Link href="/admin/photos/upload" className="w-full bg-white text-black text-center py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <Plus size={14} />
+                    Media Manager
                 </Link>
-                <Link href="/admin/albums/create" className="flex-1 border border-white/20 text-center py-2.5 rounded-lg font-bold text-xs hover:bg-white/5 transition-colors flex items-center justify-center">
-                    New Album
+                <Link href="/admin/albums/create" className="w-full bg-white/5 border border-white/10 text-white text-center py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-white/10 transition-all flex items-center justify-center gap-2">
+                    New Collection
                 </Link>
             </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* RECENT PHOTOS */}
-      <div className="space-y-6">
+      <motion.div variants={item} className="space-y-8">
         <div className="flex items-center justify-between">
-            <h2 className="text-xl md:text-2xl font-bold">Recent Uploads</h2>
-            <Link href="/admin/photos" className="text-white/40 hover:text-white transition-colors text-xs font-bold uppercase tracking-widest">
-                View All →
+            <div className="flex items-center gap-3">
+                <Sparkles size={20} className="text-accent-cta" />
+                <h2 className="text-2xl font-black tracking-tight italic uppercase">Recent Activity</h2>
+            </div>
+            <Link href="/admin/albums" className="text-white/20 hover:text-white transition-all text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2 group">
+                System Archives <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
             </Link>
         </div>
 
         {stats.recentPhotos.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
                 {stats.recentPhotos.map((photo: any) => (
-                    <div key={photo.id} className="group relative aspect-square bg-[#111] rounded-xl overflow-hidden border border-white/5">
+                    <motion.div 
+                        key={photo.id} 
+                        whileHover={{ y: -10 }}
+                        className="group relative aspect-square bg-[#0a0a0a] rounded-2xl overflow-hidden border border-white/5 shadow-xl"
+                    >
                         <img 
                             src={photo.imageUrl} 
                             alt={photo.title}
-                            className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500"
+                            className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-all duration-700"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-3 flex flex-col justify-end">
-                            <p className="text-[10px] font-bold truncate">{photo.title}</p>
-                            <p className="text-[8px] text-white/40 truncate uppercase tracking-tighter">{photo.album?.name}</p>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 p-4 flex flex-col justify-end backdrop-blur-[2px]">
+                            <p className="text-[10px] font-black uppercase tracking-widest truncate">{photo.title}</p>
+                            <p className="text-[8px] text-white/40 truncate uppercase tracking-tighter font-bold">{photo.album?.name}</p>
                         </div>
-                    </div>
+                    </motion.div>
                 ))}
             </div>
         ) : (
-            <div className="p-12 text-center border-2 border-dashed border-white/10 rounded-3xl">
-                <p className="text-white/30 text-sm">No photos uploaded yet.</p>
-                <Link href="/admin/photos/upload" className="inline-block mt-4 text-white hover:underline text-xs font-bold">
-                    Upload your first photo
+            <div className="py-24 text-center border-2 border-dashed border-white/5 rounded-[3rem] bg-white/[0.01]">
+                <Images size={48} className="text-white/5 mx-auto mb-6" />
+                <p className="text-white/20 text-sm font-black uppercase tracking-widest">Digital void detected</p>
+                <Link href="/admin/photos/upload" className="inline-block mt-6 bg-white/5 hover:bg-white/10 text-white px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all">
+                    Initiate First Upload
                 </Link>
             </div>
         )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
-function StatCard({ title, value, icon }: { title: string, value: number, icon: string }) {
+function StatCard({ title, value, icon: Icon, color }: { title: string, value: number, icon: any, color: string }) {
     return (
-        <div className="bg-[#111] p-6 md:p-8 rounded-2xl border border-white/10 hover:border-white/20 transition-all group">
-            <div className="flex items-center justify-between">
+        <div className="bg-[#0a0a0a] p-8 rounded-[2.5rem] border border-white/5 hover:border-white/10 transition-all group relative overflow-hidden shadow-2xl">
+            <div className="absolute bottom-0 right-0 w-32 h-32 bg-white/[0.02] rounded-full -mr-16 -mb-16 group-hover:scale-150 transition-transform duration-1000" />
+            <div className="flex items-center justify-between relative z-10">
                 <div>
-                    <p className="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em]">{title}</p>
-                    <h2 className="text-3xl md:text-4xl font-black mt-2 group-hover:scale-105 transition-transform origin-left">{value}</h2>
+                    <p className="text-white/30 text-[10px] font-black uppercase tracking-[0.2em]">{title}</p>
+                    <h2 className="text-5xl font-black mt-4 tracking-tighter italic">{value}</h2>
                 </div>
-                <div className="text-2xl md:text-3xl grayscale group-hover:grayscale-0 transition-all opacity-20 group-hover:opacity-100">
-                    {icon}
+                <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center text-white/20 group-hover:text-white transition-all group-hover:scale-110 duration-500">
+                    <Icon size={24} />
                 </div>
             </div>
         </div>

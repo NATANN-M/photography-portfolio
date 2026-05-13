@@ -1,25 +1,30 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0a0a;
-  --foreground: #ffffff;
+  --background: #F2EFE9;
+  --foreground: #2D2926;
+  --accent-sleep: #B8C8D6;
+  --accent-social: #E6B3A2;
+  --accent-relax: #B8A8C6;
+  --accent-cta: #B13430;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui;
+  --color-accent-sleep: var(--accent-sleep);
+  --color-accent-social: var(--accent-social);
+  --color-accent-relax: var(--accent-relax);
+  --color-accent-cta: var(--accent-cta);
+  --font-sans: "Inter", var(--font-geist-sans), ui-sans-serif, system-ui;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ffffff;
-  }
+html {
+  scroll-behavior: auto;
 }
 
-html {
+html[data-scroll-behavior="smooth"] {
   scroll-behavior: smooth;
 }
 
@@ -31,33 +36,38 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar - Happly Style */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: var(--background);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #222;
+  background: #d1cdc7;
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #333;
+  background: #b5b1ab;
 }
 
 /* Modern Utility Classes */
 .glass {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .text-gradient {
-  background: linear-gradient(180deg, #fff 0%, rgba(255, 255, 255, 0.5) 100%);
+  background: linear-gradient(180deg, var(--foreground) 0%, rgba(45, 41, 38, 0.6) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+.pill-button {
+  @apply px-8 py-3 rounded-full font-bold uppercase tracking-widest text-[10px] transition-all duration-300;
+}
+

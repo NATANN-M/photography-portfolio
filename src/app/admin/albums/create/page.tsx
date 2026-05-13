@@ -70,13 +70,40 @@ export default function CreateAlbumPage() {
         </div>
 
         <div className="space-y-2">
-            <label className="text-sm font-medium text-white/60">Cover Image URL (Optional)</label>
-            <input
-                placeholder="https://example.com/image.jpg"
-                value={coverImage}
-                onChange={(e) => setCoverImage(e.target.value)}
-                className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/40 transition-colors"
-            />
+            <label className="text-sm font-medium text-white/60">Cover Image (URL or Upload)</label>
+            <div className="flex items-center gap-4">
+                <input
+                    placeholder="https://example.com/image.jpg"
+                    value={coverImage}
+                    onChange={(e) => setCoverImage(e.target.value)}
+                    className="flex-1 bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/40 transition-colors"
+                />
+                <div className="relative">
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            const formData = new FormData();
+                            formData.append("file", file);
+                            try {
+                                const res = await api.post("/upload", formData, {
+                                    headers: { "Content-Type": "multipart/form-data" },
+                                });
+                                if (res.data.url) setCoverImage(res.data.url);
+                            } catch (err) {
+                                console.error("Upload failed", err);
+                                alert("Failed to upload image");
+                            }
+                        }}
+                        className="absolute inset-0 opacity-0 cursor-pointer"
+                    />
+                    <button className="bg-white/10 hover:bg-white/20 px-4 py-3 rounded-xl text-sm font-medium transition-colors">
+                        Upload
+                    </button>
+                </div>
+            </div>
             {coverImage && (
                 <div className="mt-2 aspect-video rounded-xl overflow-hidden border border-white/10">
                     <img src={coverImage} alt="preview" className="w-full h-full object-cover" />

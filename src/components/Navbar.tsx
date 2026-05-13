@@ -3,17 +3,31 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { api } from "@/lib/api";
 
 export default function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [setting, setSetting] = useState<any>(null);
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
     };
     window.addEventListener("scroll", handleScroll);
+    
+    // Load settings for logo
+    async function loadSettings() {
+      try {
+        const res = await api.get("/setting");
+        setSetting(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadSettings();
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -32,17 +46,24 @@ export default function Navbar() {
   }, [isOpen]);
 
   const links = [
-    { name: "Home", href: "/" },
-    { name: "Archive", href: "/albums" },
+    { name: "home", href: "/" },
+    { name: "archive", href: "/albums" },
+    { name: "contact", href: "/contact" },
   ];
 
   return (
     <>
       <nav className={`fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-6 md:px-12 py-6 transition-all duration-500 ${
-        scrolled || isOpen ? "bg-black/90 backdrop-blur-xl py-4 border-b border-white/5" : "bg-transparent"
+        scrolled || isOpen ? "bg-background/80 backdrop-blur-xl py-4 border-b border-foreground/5" : "bg-transparent"
       }`}>
-        <Link href="/" className="text-2xl font-black tracking-tighter text-white italic group relative z-[110]">
-          ZEKI<span className="text-white/40 group-hover:text-white transition-colors">.</span>
+        <Link href="/" className="group relative z-[110] flex items-center gap-3">
+          {setting?.useDefaultLogo === false && setting?.logoUrl ? (
+             <img src={setting.logoUrl} alt="Logo" className="h-8 md:h-10 w-auto object-contain invert dark:invert-0" />
+          ) : (
+            <span className="text-3xl font-black tracking-tighter text-foreground group">
+              zeki<span className="text-accent-cta group-hover:opacity-60 transition-opacity">.</span>
+            </span>
+          )}
         </Link>
         
         {/* DESKTOP LINKS */}
@@ -51,8 +72,8 @@ export default function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className={`text-[10px] font-bold tracking-[0.3em] uppercase transition-all duration-300 ${
-                pathname === link.href ? "text-white" : "text-white/30 hover:text-white"
+              className={`text-sm font-bold tracking-tight transition-all duration-300 ${
+                pathname === link.href ? "text-foreground" : "text-foreground/40 hover:text-foreground"
               }`}
             >
               {link.name}
@@ -60,26 +81,26 @@ export default function Navbar() {
           ))}
           <Link
             href="/login"
-            className="px-6 py-2 text-[10px] font-bold tracking-[0.2em] uppercase border border-white/10 rounded-full hover:bg-white hover:text-black transition-all duration-500 backdrop-blur-md"
+            className="pill-button bg-foreground text-background hover:opacity-90 active:scale-95"
           >
-            Login
+            login
           </Link>
         </div>
 
         {/* MOBILE MENU TOGGLE */}
         <button 
           onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden text-white flex flex-col gap-1.5 p-2 relative z-[110] cursor-pointer"
+          className="md:hidden text-foreground flex flex-col gap-1.5 p-2 relative z-[110] cursor-pointer"
           aria-label="Toggle Menu"
         >
-          <div className={`w-6 h-0.5 bg-white transition-all duration-300 origin-center ${isOpen ? "rotate-45 translate-y-2" : ""}`} />
-          <div className={`w-6 h-0.5 bg-white transition-all duration-300 ${isOpen ? "opacity-0" : ""}`} />
-          <div className={`w-6 h-0.5 bg-white transition-all duration-300 origin-center ${isOpen ? "-rotate-45 -translate-y-2" : ""}`} />
+          <div className={`w-6 h-0.5 bg-foreground transition-all duration-300 origin-center ${isOpen ? "rotate-45 translate-y-2" : ""}`} />
+          <div className={`w-6 h-0.5 bg-foreground transition-all duration-300 ${isOpen ? "opacity-0" : ""}`} />
+          <div className={`w-6 h-0.5 bg-foreground transition-all duration-300 origin-center ${isOpen ? "-rotate-45 -translate-y-2" : ""}`} />
         </button>
       </nav>
 
       {/* MOBILE MENU OVERLAY */}
-      <div className={`fixed inset-0 z-[90] bg-black backdrop-blur-3xl transition-all duration-500 md:hidden flex flex-col items-center justify-center gap-12 p-10 ${
+      <div className={`fixed inset-0 z-[90] bg-background transition-all duration-500 md:hidden flex flex-col items-center justify-center gap-12 p-10 ${
         isOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-full pointer-events-none"
       }`}>
         <div className="flex flex-col items-center gap-10">
@@ -87,8 +108,8 @@ export default function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className={`text-4xl font-bold tracking-[0.2em] uppercase transition-all active:scale-95 ${
-                pathname === link.href ? "text-white" : "text-white/20"
+              className={`text-5xl font-bold tracking-tighter transition-all active:scale-95 ${
+                pathname === link.href ? "text-foreground" : "text-foreground/20"
               }`}
             >
               {link.name}
@@ -96,17 +117,18 @@ export default function Navbar() {
           ))}
           <Link
             href="/login"
-            className="text-4xl font-bold tracking-[0.2em] uppercase text-white/20 active:scale-95"
+            className="text-5xl font-bold tracking-tighter text-foreground/20 active:scale-95"
           >
-            Login
+            login
           </Link>
         </div>
 
         {/* Branding in menu */}
         <div className="absolute bottom-12 text-center">
-            <p className="text-[10px] font-bold tracking-[0.5em] text-white/20 uppercase italic">Zeki Photography</p>
+            <p className="text-xs font-bold tracking-tight text-foreground/20 italic">{setting?.heroTitle?.toLowerCase() || "zeki"} photography</p>
         </div>
       </div>
     </>
   );
 }
+
