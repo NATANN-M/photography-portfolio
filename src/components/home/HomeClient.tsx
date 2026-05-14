@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
-import { motion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -13,6 +13,93 @@ interface HomeClientProps {
   initialSetting: any;
   initialAlbums: any[];
   initialRecentPhotos: any[];
+}
+
+const safeEncode = (url: string) => {
+  if (!url) return "";
+  try {
+      return encodeURI(url);
+  } catch (e) {
+      return url;
+  }
+};
+
+function MobileCarousel({ photos, t }: { photos: any[], t: any }) {
+    const controls = useAnimation();
+
+    useEffect(() => {
+        controls.start({
+            x: ["0%", "-50%"],
+            transition: { duration: 25, repeat: Infinity, ease: "linear" }
+        });
+    }, [controls]);
+
+    return (
+        <motion.div 
+            initial={{ scale: 0.8, opacity: 0, rotateX: 10, y: 50 }}
+            whileInView={{ scale: 1, opacity: 1, rotateX: 0, y: 0 }}
+            viewport={{ once: true, margin: "50px" }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="md:hidden relative w-[100vw] -mx-6 overflow-hidden py-10 cursor-pointer touch-none" 
+            style={{ perspective: "1200px" }}
+            onPointerDown={() => controls.stop()}
+            onPointerUp={() => {
+                controls.start({
+                    x: ["0%", "-50%"],
+                    transition: { duration: 25, repeat: Infinity, ease: "linear" }
+                });
+            }}
+            onPointerLeave={() => {
+                controls.start({
+                    x: ["0%", "-50%"],
+                    transition: { duration: 25, repeat: Infinity, ease: "linear" }
+                });
+            }}
+            onPointerCancel={() => {
+                controls.start({
+                    x: ["0%", "-50%"],
+                    transition: { duration: 25, repeat: Infinity, ease: "linear" }
+                });
+            }}
+        >
+            <motion.div 
+                animate={controls}
+                className="flex gap-8 w-max px-6"
+                style={{ transformStyle: "preserve-3d" }}
+            >
+                {[...photos, ...photos].map((photo, i) => (
+                    <motion.div
+                        key={`${photo.id}-${i}-mobile`}
+                        animate={{ 
+                            rotateY: [15, -15, 15],
+                            z: [0, 20, 0]
+                        }}
+                        transition={{ 
+                            duration: 8, 
+                            repeat: Infinity, 
+                            ease: "easeInOut",
+                            delay: i * 0.2
+                        }}
+                        className="relative overflow-hidden rounded-[2.5rem] bg-foreground/5 shrink-0 w-[75vw] aspect-[4/5] shadow-2xl border border-foreground/10"
+                    >
+                        <Image 
+                            src={safeEncode(photo.imageUrl)} 
+                            alt={photo.title}
+                            fill
+                            className="object-cover pointer-events-none"
+                            sizes="75vw"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent flex flex-col justify-end p-8 pointer-events-none">
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground/60 mb-2 block">
+                                {photo.album?.name?.toLowerCase() || t("featured").toLowerCase()}
+                            </span>
+                            <h4 className="text-2xl font-black tracking-tighter leading-none text-foreground">{photo.title?.toLowerCase()}</h4>
+                        </div>
+                    </motion.div>
+                ))}
+            </motion.div>
+        </motion.div>
+    );
 }
 
 export default function HomeClient({ 
@@ -51,14 +138,7 @@ export default function HomeClient({
     }
   };
 
-  const safeEncode = (url: string) => {
-    if (!url) return "";
-    try {
-        return encodeURI(url);
-    } catch (e) {
-        return url;
-    }
-  };
+  // safeEncode moved to top level
 
   return (
     <div className="bg-background min-h-screen text-foreground font-sans selection:bg-foreground selection:text-background transition-colors duration-500">
@@ -75,8 +155,8 @@ export default function HomeClient({
       {/* HERO SECTION */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <motion.div 
-          initial={{ scale: 1.1, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
+          initial={{ scale: 1.1 }}
+          animate={{ scale: 1 }}
           transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
           className="absolute inset-0 z-0"
         >
@@ -108,7 +188,7 @@ export default function HomeClient({
             className="flex flex-col items-center text-center"
           >
             <div className="bg-background/5 backdrop-blur-xl border border-foreground/10 p-12 md:p-24 rounded-[4rem] shadow-2xl relative group overflow-hidden max-w-5xl w-full">
-                <div className="absolute inset-0 bg-gradient-to-br from-foreground/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                <div className="absolute inset-0 bg-gradient-to-br from-foreground/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
                 
                 <motion.span 
                     initial={{ opacity: 0, tracking: "0.5em" }}
@@ -178,12 +258,13 @@ export default function HomeClient({
                     </p>
                 </div>
 
+                {/* DESKTOP GRID */}
                 <motion.div 
                   variants={containerVariants}
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true, margin: "-100px" }}
-                  className="grid grid-cols-1 md:grid-cols-12 gap-6"
+                  className="hidden md:grid md:grid-cols-12 gap-6"
                 >
                     {initialRecentPhotos.map((photo, i) => {
                         const isWide = i % 5 === 0;
@@ -200,8 +281,9 @@ export default function HomeClient({
                                   src={safeEncode(photo.imageUrl)} 
                                   alt={photo.title}
                                   fill
+                                  priority={i < 2}
                                   className="object-cover transition-transform duration-[1.5s] group-hover:scale-110"
-                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                  sizes="(max-width: 1200px) 50vw, 33vw"
                               />
                               <div className="absolute inset-0 bg-background/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8 md:p-12">
                                   <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
@@ -213,6 +295,9 @@ export default function HomeClient({
                         );
                     })}
                 </motion.div>
+
+                {/* MOBILE AUTO SCROLLING 3D CAROUSEL */}
+                <MobileCarousel photos={initialRecentPhotos} t={t} />
             </div>
         </section>
       )}
@@ -255,6 +340,7 @@ export default function HomeClient({
                     src={a.coverImage || "https://images.unsplash.com/photo-1493246507139-91e8bef99c02?auto=format&fit=crop&q=80"}
                     alt={a.name}
                     fill
+                    priority={index < 2}
                     className="object-cover transition-transform duration-[2s] group-hover:scale-110"
                     sizes="(max-width: 768px) 100vw, 50vw"
                   />
@@ -274,6 +360,31 @@ export default function HomeClient({
               </motion.div>
           ))}
         </div>
+      </section>
+
+      {/* CTA SECTION */}
+      <section className="py-40 px-6 max-w-[1400px] mx-auto text-center border-t border-foreground/5">
+        <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            className="flex flex-col items-center gap-10 bg-foreground/5 rounded-[4rem] p-16 md:p-32"
+        >
+            <h2 className="text-xs font-black uppercase tracking-[0.5em] text-foreground/40">Ready to create?</h2>
+            <h3 className="text-6xl md:text-9xl font-black tracking-tighter leading-none italic uppercase">
+                Let's <span className="text-accent-cta">Connect.</span>
+            </h3>
+            <p className="text-foreground/60 text-lg font-bold max-w-md mb-8">
+                Available for global assignments and creative collaborations. Book an appointment today.
+            </p>
+            <button 
+                onClick={() => router.push("/contact")}
+                className="pill-button bg-foreground text-background hover:scale-105 active:scale-95 px-16 py-6 text-xs font-black uppercase tracking-[0.2em] shadow-xl transition-all"
+            >
+                Get an Appointment
+            </button>
+        </motion.div>
       </section>
 
       {/* FOOTER */}

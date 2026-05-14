@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Upload, X, CheckCircle2, Image as ImageIcon, Plus, Trash2 } from "lucide-react";
 import Toast, { ToastType } from "@/components/Toast";
+import imageCompression from "browser-image-compression";
 
 interface UploadItem {
   id: string;
@@ -104,8 +105,20 @@ export default function MediaManagerPage() {
       setItems(prev => prev.map(i => i.id === item.id ? { ...i, status: "uploading" } : i));
 
       try {
+        let fileToUpload = item.file;
+        try {
+          const options = {
+            maxSizeMB: 1.5,
+            maxWidthOrHeight: 2048,
+            useWebWorker: true,
+          };
+          fileToUpload = await imageCompression(item.file, options);
+        } catch (error) {
+          console.error("Compression error:", error);
+        }
+
         const formData = new FormData();
-        formData.append("file", item.file);
+        formData.append("file", fileToUpload);
         formData.append("title", item.title);
         formData.append("albumId", albumId);
 
