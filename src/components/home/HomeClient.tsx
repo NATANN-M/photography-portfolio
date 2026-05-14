@@ -191,8 +191,8 @@ export default function HomeClient({
                 <div className="absolute inset-0 bg-gradient-to-br from-foreground/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
                 
                 <motion.span 
-                    initial={{ opacity: 0, tracking: "0.5em" }}
-                    animate={{ opacity: 0.4, tracking: "0.3em" }}
+                    initial={{ opacity: 0, letterSpacing: "0.5em" }}
+                    animate={{ opacity: 0.4, letterSpacing: "0.3em" }}
                     transition={{ duration: 1, delay: 0.4 }}
                     className="text-[10px] md:text-xs font-black uppercase tracking-widest mb-10 block"
                 >
