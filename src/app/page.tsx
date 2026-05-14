@@ -3,9 +3,10 @@ import { getAlbums } from "@/services/album.service";
 import { getRecentPhotos } from "@/services/photo.service";
 import HomeClient from "@/components/home/HomeClient";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function HomePage() {
-  // Fetch data on the server
   const [setting, albums, recentPhotos] = await Promise.all([
     getSettings(),
     getAlbums(),
@@ -13,10 +14,10 @@ export default async function HomePage() {
   ]);
 
   return (
-    <HomeClient 
-      initialSetting={setting} 
-      initialAlbums={albums} 
-      initialRecentPhotos={recentPhotos} 
+    <HomeClient
+      initialSetting={setting}
+      initialAlbums={albums}
+      initialRecentPhotos={recentPhotos}
     />
   );
 }

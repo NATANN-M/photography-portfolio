@@ -1,8 +1,12 @@
 import { prisma } from "@/lib/prisma";
+import { unstable_noStore as noStore } from "next/cache";
 
 export async function getSettings() {
+  noStore(); // prevents Vercel caching
+
   return prisma.siteSetting.findFirst();
 }
+
 
 export async function updateSettings(data: {
   heroTitle?: string;
@@ -21,6 +25,8 @@ export async function updateSettings(data: {
   location?: string;
   aboutText?: string;
 }) {
+  noStore(); 
+
   const existing = await prisma.siteSetting.findFirst();
 
   if (existing) {
@@ -35,7 +41,8 @@ export async function updateSettings(data: {
         heroSubtitle: data.heroSubtitle || "",
         heroImage: data.heroImage || "",
         logoUrl: data.logoUrl || "",
-        useDefaultLogo: data.useDefaultLogo !== undefined ? data.useDefaultLogo : true,
+        useDefaultLogo:
+          data.useDefaultLogo !== undefined ? data.useDefaultLogo : true,
         profilePicUrl: data.profilePicUrl || "",
         contactEmail: data.contactEmail || "",
         contactPhone: data.contactPhone || "",

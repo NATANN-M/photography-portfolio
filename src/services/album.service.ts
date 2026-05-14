@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { unstable_noStore as noStore } from "next/cache";
 
 export async function createAlbum(data: {
     name: string;
@@ -7,18 +8,24 @@ export async function createAlbum(data: {
     coverImage?: string;
     createdById: string;
 }) {
+    noStore();
+
     return prisma.album.create({
         data,
     });
 }
 
 export async function getAlbums() {
+    noStore();
+
     return prisma.album.findMany({
         orderBy: { createdAt: "desc" },
     });
 }
 
 export async function getAlbumById(id: string) {
+    noStore();
+
     return prisma.album.findUnique({
         where: { id },
         include: {
@@ -28,29 +35,33 @@ export async function getAlbumById(id: string) {
 }
 
 export async function updateAlbum(id: string, data: any) {
-  return prisma.album.update({
-    where: { id },
-    data,
-  });
+    noStore();
+
+    return prisma.album.update({
+        where: { id },
+        data,
+    });
 }
 
 export async function deleteAlbum(id: string) {
-    // Delete all photos in the album first to avoid foreign key constraint errors
+    noStore();
+
     await prisma.photo.deleteMany({
         where: { albumId: id },
     });
 
-    // Then delete the album
     return prisma.album.delete({
         where: { id },
     });
 }
 
 export async function getAlbumBySlug(slug: string) {
-  return prisma.album.findUnique({
-    where: { slug },
-    include: {
-      photos: true,
-    },
-  });
+    noStore();
+
+    return prisma.album.findUnique({
+        where: { slug },
+        include: {
+            photos: true,
+        },
+    });
 }
